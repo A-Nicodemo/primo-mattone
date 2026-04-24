@@ -6,448 +6,107 @@
 <title>Primo Mattone — Gestione Token</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sage: #adc2b6; --wine: #6b1a1a; --cream: #f0ebe0; --dark: #1a1a1a;
+  --ok: #1e7e45; --warn: #b86b00; --err: #b52a2a;
+}
+body { background: var(--sage); font-family: 'Barlow', sans-serif; min-height: 100vh; color: var(--dark); -webkit-tap-highlight-color: transparent; }
 
-  :root {
-    --sage: #adc2b6;
-    --wine: #6b1a1a;
-    --cream: #f0ebe0;
-    --dark: #1a1a1a;
-    --success: #1e7e45;
-    --warning: #b86b00;
-    --error: #b52a2a;
-  }
+.header { background: var(--wine); padding: 14px 18px 12px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.header-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--cream); line-height: 1; }
+.header-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(240,235,224,0.55); margin-top: 1px; }
 
-  body {
-    background: var(--sage);
-    font-family: 'Barlow', sans-serif;
-    min-height: 100vh;
-    color: var(--dark);
-    -webkit-tap-highlight-color: transparent;
-  }
+.tabs { display: flex; background: rgba(0,0,0,0.12); position: sticky; top: 56px; z-index: 99; }
+.tab-btn { flex: 1; padding: 11px 4px; border: none; background: transparent; color: rgba(107,26,26,0.55); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.18s; user-select: none; }
+.tab-btn.active { color: var(--wine); border-bottom-color: var(--wine); background: rgba(255,255,255,0.18); }
 
-  /* ── HEADER ── */
-  .header {
-    background: var(--wine);
-    padding: 14px 18px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 20px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--cream);
-    line-height: 1;
-  }
-  .header-sub {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(240,235,224,0.55);
-    margin-top: 1px;
-  }
+.tab-panel { display: none; padding: 16px 14px 48px; }
+.tab-panel.active { display: block; }
 
-  /* ── TABS ── */
-  .tabs {
-    display: flex;
-    background: rgba(0,0,0,0.12);
-    position: sticky;
-    top: 56px;
-    z-index: 99;
-  }
-  .tab-btn {
-    flex: 1;
-    padding: 11px 4px;
-    border: none;
-    background: transparent;
-    color: rgba(107,26,26,0.55);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.18s;
-    user-select: none;
-  }
-  .tab-btn.active {
-    color: var(--wine);
-    border-bottom-color: var(--wine);
-    background: rgba(255,255,255,0.18);
-  }
+.card { background: var(--cream); border-radius: 6px; padding: 18px; margin-bottom: 12px; }
+.card-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #9a8a7a; margin-bottom: 12px; }
 
-  /* ── PANELS ── */
-  .tab-panel { display: none; padding: 16px 14px 48px; }
-  .tab-panel.active { display: block; }
+.qty-row { display: flex; align-items: center; gap: 12px; }
+.qty-btn { width: 52px; height: 52px; border: 2px solid var(--wine); border-radius: 5px; background: transparent; color: var(--wine); font-size: 28px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; flex-shrink: 0; }
+.qty-btn:active { background: var(--wine); color: var(--cream); }
+.qty-center { text-align: center; flex: 1; }
+.qty-num { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 56px; color: var(--wine); line-height: 1; }
+.qty-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; margin-top: 1px; }
+.qty-plus5 { padding: 10px 14px; border: 2px solid rgba(107,26,26,0.35); border-radius: 5px; background: white; color: var(--wine); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.12s; flex-shrink: 0; }
+.qty-plus5:active { background: var(--wine); color: var(--cream); }
 
-  /* ── CARD ── */
-  .card {
-    background: var(--cream);
-    border-radius: 6px;
-    padding: 18px;
-    margin-bottom: 12px;
-  }
-  .card-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: #9a8a7a;
-    margin-bottom: 12px;
-  }
+.value-row { display: flex; gap: 8px; }
+.value-btn { flex: 1; padding: 12px 6px; border: 2px solid rgba(107,26,26,0.22); border-radius: 5px; background: white; color: #777; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; cursor: pointer; text-align: center; transition: all 0.15s; }
+.value-btn.sel { border-color: var(--wine); background: var(--wine); color: var(--cream); }
 
-  /* ── QUANTITY ── */
-  .qty-row { display: flex; align-items: center; gap: 12px; }
-  .qty-btn {
-    width: 46px; height: 46px;
-    border: 2px solid var(--wine);
-    border-radius: 5px;
-    background: transparent;
-    color: var(--wine);
-    font-size: 24px; font-weight: 700;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.12s;
-    font-family: 'Barlow Condensed', sans-serif;
-    flex-shrink: 0;
-  }
-  .qty-btn:active { background: var(--wine); color: var(--cream); transform: scale(0.94); }
-  .qty-center { text-align: center; flex: 1; }
-  .qty-num {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 52px;
-    color: var(--wine);
-    line-height: 1;
-  }
-  .qty-lbl {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #aaa;
-    margin-top: 1px;
-  }
-  .qty-plus5 {
-    padding: 8px 12px;
-    border: 2px solid rgba(107,26,26,0.35);
-    border-radius: 5px;
-    background: white;
-    color: var(--wine);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.12s;
-    flex-shrink: 0;
-  }
-  .qty-plus5:active { background: var(--wine); color: var(--cream); }
+.method-row { display: flex; gap: 10px; }
+.method-btn { flex: 1; padding: 13px 8px; border: 2px solid rgba(107,26,26,0.22); border-radius: 5px; background: white; color: #777; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; text-align: center; transition: all 0.15s; }
+.method-btn.sel { border-color: var(--wine); background: var(--wine); color: var(--cream); }
 
-  /* ── VALUE BUTTONS ── */
-  .value-row { display: flex; gap: 8px; }
-  .value-btn {
-    flex: 1;
-    padding: 11px 6px;
-    border: 2px solid rgba(107,26,26,0.22);
-    border-radius: 5px;
-    background: white;
-    color: #777;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-  }
-  .value-btn.sel {
-    border-color: var(--wine);
-    background: var(--wine);
-    color: var(--cream);
-  }
+.total-row { display: flex; justify-content: space-between; align-items: center; background: rgba(107,26,26,0.07); border-radius: 5px; padding: 12px 16px; }
+.total-lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--wine); }
+.total-amt { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 30px; color: var(--wine); }
 
-  /* ── PAYMENT ── */
-  .method-row { display: flex; gap: 10px; }
-  .method-btn {
-    flex: 1;
-    padding: 13px 8px;
-    border: 2px solid rgba(107,26,26,0.22);
-    border-radius: 5px;
-    background: white;
-    color: #777;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-  }
-  .method-btn.sel { border-color: var(--wine); background: var(--wine); color: var(--cream); }
+.btn-primary { width: 100%; padding: 16px; background: var(--wine); color: var(--cream); border: none; border-radius: 5px; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.15s; margin-bottom: 10px; }
+.btn-primary:hover { background: #891f1f; }
+.btn-primary:disabled { background: #bbb; cursor: not-allowed; }
+.btn-outline { width: 100%; padding: 13px; background: transparent; color: var(--wine); border: 2px solid var(--wine); border-radius: 5px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; margin-bottom: 10px; }
+.btn-outline:hover { background: var(--wine); color: var(--cream); }
 
-  /* ── TOTAL ── */
-  .total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(107,26,26,0.07);
-    border-radius: 5px;
-    padding: 12px 16px;
-  }
-  .total-lbl {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--wine);
-  }
-  .total-amt {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 30px;
-    color: var(--wine);
-  }
+.qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.qr-item { background: white; border-radius: 5px; padding: 10px; text-align: center; border: 1px solid rgba(0,0,0,0.08); }
+.qr-item img { width: 100% !important; height: auto !important; }
+.qr-num { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 14px; color: var(--wine); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.qr-val { font-size: 11px; color: #aaa; margin-top: 2px; }
 
-  /* ── BUTTONS ── */
-  .btn-primary {
-    width: 100%;
-    padding: 16px;
-    background: var(--wine);
-    color: var(--cream);
-    border: none;
-    border-radius: 5px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 18px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.15s;
-    margin-bottom: 10px;
-  }
-  .btn-primary:hover { background: #891f1f; }
-  .btn-primary:active { opacity: 0.88; }
-  .btn-primary:disabled { background: #bbb; cursor: not-allowed; }
+select { width: 100%; padding: 13px 14px; border: 2px solid rgba(107,26,26,0.25); border-radius: 5px; font-family: 'Barlow', sans-serif; font-size: 15px; color: var(--dark); background: white; outline: none; appearance: none; }
+select:focus { border-color: var(--wine); }
 
-  .btn-outline {
-    width: 100%;
-    padding: 13px;
-    background: transparent;
-    color: var(--wine);
-    border: 2px solid var(--wine);
-    border-radius: 5px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s;
-    margin-bottom: 10px;
-  }
-  .btn-outline:hover { background: var(--wine); color: var(--cream); }
+#reader { width: 100% !important; border-radius: 5px; overflow: hidden; }
 
-  /* ── QR GRID ── */
-  .qr-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-  }
-  .qr-item {
-    background: white;
-    border-radius: 5px;
-    padding: 10px;
-    text-align: center;
-    border: 1px solid rgba(0,0,0,0.08);
-  }
-  .qr-item canvas, .qr-item img { width: 100% !important; height: auto !important; }
-  .qr-num {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 14px;
-    color: var(--wine);
-    margin-top: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .qr-val {
-    font-size: 11px;
-    color: #aaa;
-    margin-top: 2px;
-  }
+.scan-result { display: none; padding: 22px 16px; border-radius: 6px; text-align: center; margin-top: 12px; animation: pop 0.25s ease; }
+.scan-result.ok  { background: #d6f0e0; border: 2px solid var(--ok); }
+.scan-result.dup { background: #fff3cd; border: 2px solid var(--warn); }
+.scan-result.err { background: #fde8e8; border: 2px solid var(--err); }
+.scan-icon { font-size: 52px; line-height: 1; margin-bottom: 6px; }
+.scan-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 26px; text-transform: uppercase; letter-spacing: 0.05em; }
+.scan-result.ok  .scan-title { color: var(--ok); }
+.scan-result.dup .scan-title { color: var(--warn); }
+.scan-result.err .scan-title { color: var(--err); }
+.scan-sub { font-size: 13px; color: #666; margin-top: 5px; }
 
-  /* ── SELECT ── */
-  select {
-    width: 100%;
-    padding: 13px 14px;
-    border: 2px solid rgba(107,26,26,0.25);
-    border-radius: 5px;
-    font-family: 'Barlow', sans-serif;
-    font-size: 15px;
-    color: var(--dark);
-    background: white;
-    outline: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%236b1a1a' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-  }
-  select:focus { border-color: var(--wine); }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat-card { background: var(--cream); border-radius: 6px; padding: 16px 12px; text-align: center; }
+.stat-val { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 38px; color: var(--wine); line-height: 1; }
+.stat-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase; color: #999; margin-top: 3px; }
 
-  /* ── SCANNER ── */
-  #reader { width: 100% !important; border-radius: 5px; overflow: hidden; }
-  #reader video { border-radius: 5px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #999; text-align: left; padding: 7px 8px; border-bottom: 2px solid rgba(107,26,26,0.12); }
+td { padding: 10px 8px; border-bottom: 1px solid rgba(107,26,26,0.07); color: var(--dark); font-size: 14px; }
+tr:last-child td { border-bottom: none; }
+.td-amt { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: var(--wine); font-size: 16px; }
+tfoot td { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; border-top: 2px solid rgba(107,26,26,0.2); border-bottom: none; padding-top: 12px; }
 
-  .scan-result {
-    display: none;
-    padding: 22px 16px;
-    border-radius: 6px;
-    text-align: center;
-    margin-top: 12px;
-    animation: pop 0.25s ease;
-  }
-  .scan-result.ok  { background: #d6f0e0; border: 2px solid var(--success); }
-  .scan-result.dup { background: #fff3cd; border: 2px solid var(--warning); }
-  .scan-result.err { background: #fde8e8; border: 2px solid var(--error); }
+.empty { text-align: center; padding: 28px 16px; color: #aaa; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; }
+.spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(107,26,26,0.2); border-top-color: var(--wine); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
 
-  .scan-icon { font-size: 52px; line-height: 1; margin-bottom: 6px; }
-  .scan-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 26px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .scan-result.ok  .scan-title { color: var(--success); }
-  .scan-result.dup .scan-title { color: var(--warning); }
-  .scan-result.err .scan-title { color: var(--error); }
-  .scan-sub { font-size: 13px; color: #666; margin-top: 5px; }
+@keyframes pop { from { transform: scale(0.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── DASHBOARD ── */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-  .stat-card {
-    background: var(--cream);
-    border-radius: 6px;
-    padding: 16px 12px;
-    text-align: center;
-  }
-  .stat-val {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 38px;
-    color: var(--wine);
-    line-height: 1;
-  }
-  .stat-lbl {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: #999;
-    margin-top: 3px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-  th {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #999;
-    text-align: left;
-    padding: 7px 8px;
-    border-bottom: 2px solid rgba(107,26,26,0.12);
-  }
-  td {
-    padding: 10px 8px;
-    border-bottom: 1px solid rgba(107,26,26,0.07);
-    color: var(--dark);
-    font-size: 14px;
-  }
-  tr:last-child td { border-bottom: none; }
-  .td-amt {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    color: var(--wine);
-    font-size: 16px;
-  }
-  tfoot td {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border-top: 2px solid rgba(107,26,26,0.2);
-    border-bottom: none;
-    padding-top: 12px;
-  }
-
-  .empty {
-    text-align: center;
-    padding: 28px 16px;
-    color: #aaa;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 14px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 20px; height: 20px;
-    border: 3px solid rgba(107,26,26,0.2);
-    border-top-color: var(--wine);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-
-  @keyframes pop {
-    from { transform: scale(0.93); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* ── PRINT ── */
-  @media print {
-    body { background: white; }
-    .header, .tabs, #panel-scanner, #panel-dashboard,
-    .btn-primary, .btn-outline, .card-label, .total-row, #cassa-form { display: none !important; }
-    #panel-cassa { display: block !important; padding: 0; }
-    #cassa-result { display: block !important; }
-    .qr-grid { grid-template-columns: repeat(4, 1fr); }
-    .qr-item { break-inside: avoid; }
-    .card { box-shadow: none; padding: 0; background: white; margin: 0; }
-  }
+@media print {
+  body { background: white; }
+  .header, .tabs, #panel-scanner, #panel-dashboard, .btn-primary, .btn-outline, #cassa-form { display: none !important; }
+  #panel-cassa { display: block !important; padding: 0; }
+  #cassa-result { display: block !important; }
+  .qr-grid { grid-template-columns: repeat(4, 1fr); }
+  .qr-item { break-inside: avoid; }
+  .card { box-shadow: none; padding: 0; background: white; margin: 0; }
+}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div>
     <div class="header-title">Primo Mattone</div>
@@ -455,23 +114,22 @@
   </div>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('cassa',this)">🏧 Cassa</button>
-  <button class="tab-btn" onclick="switchTab('scanner',this)">📷 Scanner</button>
-  <button class="tab-btn" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+  <button class="tab-btn active" id="tab-cassa" onclick="switchTab('cassa')">🏧 Cassa</button>
+  <button class="tab-btn" id="tab-scanner" onclick="switchTab('scanner')">📷 Scanner</button>
+  <button class="tab-btn" id="tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
 </div>
 
-<!-- ══════════════ CASSA ══════════════ -->
+<!-- CASSA -->
 <div id="panel-cassa" class="tab-panel active">
-
   <div id="cassa-form">
+
     <div class="card">
       <div class="card-label">Quantità Token</div>
       <div class="qty-row">
         <button class="qty-btn" onclick="changeQty(-1)">−</button>
         <div class="qty-center">
-          <div class="qty-num" id="qty-display">1</div>
+          <div class="qty-num" id="qty-num">1</div>
           <div class="qty-lbl">token</div>
         </div>
         <button class="qty-btn" onclick="changeQty(1)">+</button>
@@ -495,7 +153,7 @@
     <div class="card" style="padding:14px 18px">
       <div class="total-row">
         <span class="total-lbl">Totale da incassare</span>
-        <span class="total-amt" id="total-display">€1.00</span>
+        <span class="total-amt" id="total-amt">€1.00</span>
       </div>
     </div>
 
@@ -510,194 +168,183 @@
     <button class="btn-primary" onclick="window.print()">🖨️ Stampa QR</button>
     <button class="btn-outline" onclick="resetCassa()">← Nuova Vendita</button>
   </div>
-
 </div>
 
-<!-- ══════════════ SCANNER ══════════════ -->
+<!-- SCANNER -->
 <div id="panel-scanner" class="tab-panel">
-
   <div class="card">
     <div class="card-label">Seleziona il tuo punto vendita</div>
     <select id="ft-select">
       <option value="">— scegli il food truck —</option>
     </select>
   </div>
-
   <div class="card" style="padding:10px">
     <div id="reader"></div>
   </div>
-
   <div class="scan-result" id="scan-result">
     <div class="scan-icon" id="scan-icon"></div>
     <div class="scan-title" id="scan-title"></div>
     <div class="scan-sub" id="scan-sub"></div>
   </div>
-
 </div>
 
-<!-- ══════════════ DASHBOARD ══════════════ -->
+<!-- DASHBOARD -->
 <div id="panel-dashboard" class="tab-panel">
-
-  <button class="btn-primary" onclick="loadDashboard()" style="margin-bottom:14px">
-    🔄 Aggiorna Dati
-  </button>
-
+  <button class="btn-primary" onclick="loadDashboard()" style="margin-bottom:14px">🔄 Aggiorna Dati</button>
   <div class="stats-grid" id="stats-grid">
     <div class="stat-card"><div class="stat-val">—</div><div class="stat-lbl">Venduti</div></div>
     <div class="stat-card"><div class="stat-val">—</div><div class="stat-lbl">Usati</div></div>
     <div class="stat-card"><div class="stat-val">—</div><div class="stat-lbl">Rimanenti</div></div>
     <div class="stat-card"><div class="stat-val">—</div><div class="stat-lbl">Incasso €</div></div>
   </div>
-
   <div class="card">
     <div class="card-label">Rimborso per Food Truck</div>
-    <div id="ft-table-wrap">
-      <div class="empty">Premi "Aggiorna Dati" per caricare</div>
-    </div>
+    <div id="ft-table-wrap"><div class="empty">Premi "Aggiorna Dati" per caricare</div></div>
   </div>
-
 </div>
 
-<!-- LIBRARIES -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
 <script>
-// ═══════════════════════════════════════════════
-// ⚙️  CONFIGURAZIONE — modifica questi valori
-// ═══════════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBRbjYVDBM-zIGypWuhhbuYy2nqa0gkL3IWFNjNSyK4CQyAhs6p42w-lV2FeMynmaU-A/exec'; // ← incolla qui l'URL del tuo Apps Script
 
-const FOOD_TRUCKS = [
-  'CACIO'S',
-  'CRUNCHY',
-  'BAR',
-  'BIRRA'
-  // aggiungi o rinomina i tuoi food truck qui
+// ══════════════════════════════════════════════
+// ⚙️ CONFIGURAZIONE — modifica questi valori
+// ══════════════════════════════════════════════
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjqaRG2T5PMWRrKScli6z-IG8mDZsSiE-zcFOGo8NOisiVPguWmUssTawarSUXKteNow/exec'; // ← incolla qui il tuo URL
+
+var FOOD_TRUCKS = [
+  "Cacio's",
+  'Birra',
+  'Drink',
+  'Crunchy'
 ];
 
-const VALORI_TOKEN = [4, 5, 10, 15, 20]; // valori in euro disponibili alla cassa
-// ═══════════════════════════════════════════════
+var VALORI_TOKEN = [2, 4, 5, 10];
+// ══════════════════════════════════════════════
 
-// ── Stato ──
-let qty = 1;
-let selectedValue = VALORI_TOKEN[0];
-let selectedMethod = 'contanti';
-let scannerObj = null;
-let scannerRunning = false;
-let scanLocked = false;
+// Stato
+var qty = 1;
+var selectedValue = 1;
+var selectedMethod = 'contanti';
+var scannerObj = null;
+var scannerRunning = false;
+var scanLocked = false;
 
-// ── Init ──
-document.addEventListener('DOMContentLoaded', () => {
-  // Value buttons
-  const vr = document.getElementById('value-row');
-  VALORI_TOKEN.forEach((v, i) => {
-    const b = document.createElement('button');
+// Init al caricamento pagina
+window.onload = function() {
+  // Crea bottoni valore
+  var vr = document.getElementById('value-row');
+  VALORI_TOKEN.forEach(function(v, i) {
+    var b = document.createElement('button');
     b.className = 'value-btn' + (i === 0 ? ' sel' : '');
     b.id = 'vbtn-' + v;
     b.textContent = '€' + v;
-    b.onclick = () => selectValue(v);
+    b.onclick = function() { selectValue(v); };
     vr.appendChild(b);
   });
+  selectedValue = VALORI_TOKEN[0];
 
-  // Food truck options
-  const sel = document.getElementById('ft-select');
-  FOOD_TRUCKS.forEach(ft => {
-    const o = document.createElement('option');
-    o.value = ft; o.textContent = ft;
+  // Crea opzioni food truck
+  var sel = document.getElementById('ft-select');
+  FOOD_TRUCKS.forEach(function(ft) {
+    var o = document.createElement('option');
+    o.value = ft;
+    o.textContent = ft;
     sel.appendChild(o);
   });
 
-  updateTotal();
-});
+  aggiornaDisplay();
+};
 
-// ─────────────────────────────────────
-// TABS
-// ─────────────────────────────────────
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+// ── TABS ──────────────────────────────────────
+function switchTab(name) {
+  ['cassa','scanner','dashboard'].forEach(function(t) {
+    document.getElementById('panel-' + t).classList.remove('active');
+    document.getElementById('tab-' + t).classList.remove('active');
+  });
   document.getElementById('panel-' + name).classList.add('active');
-  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
 
-  if (name === 'scanner') {
-    startScanner();
-  } else {
-    stopScanner();
-  }
-  if (name === 'dashboard') loadDashboard();
+  if (name === 'scanner') { startScanner(); }
+  else { stopScanner(); }
+  if (name === 'dashboard') { loadDashboard(); }
 }
 
-// ─────────────────────────────────────
-// CASSA
-// ─────────────────────────────────────
+// ── CASSA ─────────────────────────────────────
 function changeQty(delta) {
-  qty = Math.max(1, Math.min(50, qty + delta));
-  document.getElementById('qty-display').textContent = qty;
-  updateTotal();
+  qty = qty + delta;
+  if (qty < 1) qty = 1;
+  if (qty > 50) qty = 50;
+  aggiornaDisplay();
 }
 
 function selectValue(v) {
   selectedValue = v;
-  document.querySelectorAll('.value-btn').forEach(b => b.classList.remove('sel'));
-  document.getElementById('vbtn-' + v).classList.add('sel');
-  updateTotal();
+  VALORI_TOKEN.forEach(function(val) {
+    var btn = document.getElementById('vbtn-' + val);
+    if (btn) btn.className = 'value-btn' + (val === v ? ' sel' : '');
+  });
+  aggiornaDisplay();
 }
 
 function selectMethod(m) {
   selectedMethod = m;
-  document.getElementById('m-contanti').classList.toggle('sel', m === 'contanti');
-  document.getElementById('m-carta').classList.toggle('sel', m === 'carta');
+  document.getElementById('m-contanti').className = 'method-btn' + (m === 'contanti' ? ' sel' : '');
+  document.getElementById('m-carta').className = 'method-btn' + (m === 'carta' ? ' sel' : '');
 }
 
-function updateTotal() {
-  document.getElementById('total-display').textContent = '€' + (qty * selectedValue).toFixed(2);
+function aggiornaDisplay() {
+  document.getElementById('qty-num').textContent = qty;
+  document.getElementById('total-amt').textContent = '€' + (qty * selectedValue).toFixed(2);
 }
 
-async function emettiToken() {
+function emettiToken() {
   if (APPS_SCRIPT_URL === 'APPS_SCRIPT_URL') {
-    alert('⚠️ Configura prima l\'URL di Apps Script nel file HTML (cerca APPS_SCRIPT_URL)');
+    alert('⚠️ Configura prima APPS_SCRIPT_URL nel file HTML');
     return;
   }
-  const btn = document.getElementById('emetti-btn');
+  var btn = document.getElementById('emetti-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Generazione…';
 
-  try {
-    const url = `${APPS_SCRIPT_URL}?action=crea_token&quantita=${qty}&valore=${selectedValue}&metodo=${encodeURIComponent(selectedMethod)}`;
-    const res = await fetch(url);
-    const data = await res.json();
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'crea_token', quantita: qty, valore: selectedValue, metodo: selectedMethod })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
     if (!data.success) throw new Error(data.error || 'Errore sconosciuto');
-    renderQRCodes(data.tokens);
-  } catch(e) {
+    renderQR(data.tokens);
+  })
+  .catch(function(e) {
     alert('Errore: ' + e.message);
     btn.disabled = false;
     btn.textContent = 'Emetti Token →';
-  }
+  });
 }
 
-function renderQRCodes(tokens) {
+function renderQR(tokens) {
   document.getElementById('cassa-form').style.display = 'none';
   document.getElementById('cassa-result').style.display = 'block';
-  document.getElementById('qr-label').textContent =
-    `${tokens.length} token · €${selectedValue} cad · ${selectedMethod}`;
+  document.getElementById('qr-label').textContent = tokens.length + ' token · €' + selectedValue + ' cad · ' + selectedMethod;
 
-  const grid = document.getElementById('qr-grid');
+  var grid = document.getElementById('qr-grid');
   grid.innerHTML = '';
 
-  tokens.forEach((id, i) => {
-    const item = document.createElement('div');
+  tokens.forEach(function(id, i) {
+    var item = document.createElement('div');
     item.className = 'qr-item';
 
-    const qrDiv = document.createElement('div');
+    var qrDiv = document.createElement('div');
     item.appendChild(qrDiv);
 
-    const num = document.createElement('div');
+    var num = document.createElement('div');
     num.className = 'qr-num';
     num.textContent = 'Token ' + (i + 1);
     item.appendChild(num);
 
-    const val = document.createElement('div');
+    var val = document.createElement('div');
     val.className = 'qr-val';
     val.textContent = '€' + selectedValue;
     item.appendChild(val);
@@ -721,153 +368,130 @@ function resetCassa() {
   document.getElementById('emetti-btn').textContent = 'Emetti Token →';
   document.getElementById('qr-grid').innerHTML = '';
   qty = 1;
-  document.getElementById('qty-display').textContent = '1';
-  updateTotal();
+  aggiornaDisplay();
 }
 
-// ─────────────────────────────────────
-// SCANNER
-// ─────────────────────────────────────
+// ── SCANNER ───────────────────────────────────
 function startScanner() {
   if (scannerRunning) return;
-
   scannerObj = new Html5Qrcode('reader');
-  Html5Qrcode.getCameras().then(cameras => {
+  Html5Qrcode.getCameras()
+  .then(function(cameras) {
     if (!cameras || cameras.length === 0) {
       document.getElementById('reader').innerHTML = '<div class="empty">Fotocamera non trovata</div>';
       return;
     }
-    const cam = cameras.find(c => /back|rear|environment/i.test(c.label)) || cameras[cameras.length - 1];
-    scannerObj.start(
-      cam.id,
-      { fps: 10, qrbox: { width: 240, height: 240 } },
-      onScanOK,
-      () => {}
-    ).then(() => { scannerRunning = true; })
-     .catch(err => {
-       document.getElementById('reader').innerHTML = `<div class="empty">Errore fotocamera</div>`;
-     });
-  }).catch(() => {
-    document.getElementById('reader').innerHTML = `<div class="empty">Permesso fotocamera negato.<br>Ricarica la pagina.</div>`;
-  });
+    var cam = cameras[cameras.length - 1];
+    cameras.forEach(function(c) { if (/back|rear|environment/i.test(c.label)) cam = c; });
+    scannerObj.start(cam.id, { fps: 10, qrbox: { width: 240, height: 240 } }, onScanOK, function(){})
+    .then(function() { scannerRunning = true; })
+    .catch(function() { document.getElementById('reader').innerHTML = '<div class="empty">Errore fotocamera</div>'; });
+  })
+  .catch(function() { document.getElementById('reader').innerHTML = '<div class="empty">Permesso fotocamera negato.<br>Ricarica la pagina.</div>'; });
 }
 
 function stopScanner() {
   if (scannerObj && scannerRunning) {
-    scannerObj.stop().then(() => {
-      scannerRunning = false;
-      scannerObj = null;
-    }).catch(() => {});
+    scannerObj.stop().then(function() { scannerRunning = false; scannerObj = null; }).catch(function(){});
   }
 }
 
-async function onScanOK(decoded) {
+function onScanOK(decoded) {
   if (scanLocked) return;
   scanLocked = true;
 
-  const ft = document.getElementById('ft-select').value;
+  var ft = document.getElementById('ft-select').value;
   if (!ft) {
-    showResult('err', '⚠️', 'Seleziona il food truck', 'prima di scansionare');
-    setTimeout(() => { scanLocked = false; hideResult(); }, 2500);
+    mostraRisultato('err', '⚠️', 'SELEZIONA IL PUNTO VENDITA', 'prima di scansionare');
+    setTimeout(function() { scanLocked = false; nascondiRisultato(); }, 2500);
     return;
   }
-
   if (APPS_SCRIPT_URL === 'APPS_SCRIPT_URL') {
-    showResult('err', '⚠️', 'URL non configurato', '');
-    setTimeout(() => { scanLocked = false; hideResult(); }, 2500);
+    mostraRisultato('err', '⚠️', 'URL NON CONFIGURATO', '');
+    setTimeout(function() { scanLocked = false; nascondiRisultato(); }, 2500);
     return;
   }
 
-  try {
-    const url = `${APPS_SCRIPT_URL}?action=usa_token&id=${encodeURIComponent(decoded)}&food_truck=${encodeURIComponent(ft)}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'usa_token', id: decoded, food_truck: ft })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
     if (data.success) {
-      showResult('ok', '✅', 'TOKEN VALIDO', `€${data.valore} · ${ft}`);
+      mostraRisultato('ok', '✅', 'TOKEN VALIDO', '€' + data.valore + ' · ' + ft);
     } else if (data.error === 'GIA_USATO') {
-      showResult('dup', '⚠️', 'GIÀ USATO', 'Questo token è già stato scansionato');
+      mostraRisultato('dup', '⚠️', 'GIÀ USATO', 'Token già scansionato');
     } else if (data.error === 'NON_TROVATO') {
-      showResult('err', '❌', 'NON VALIDO', 'Token non riconosciuto');
+      mostraRisultato('err', '❌', 'NON VALIDO', 'Token non riconosciuto');
     } else {
-      showResult('err', '❌', 'ERRORE', data.error || '');
+      mostraRisultato('err', '❌', 'ERRORE', data.error || '');
     }
-  } catch(e) {
-    showResult('err', '⚠️', 'CONNESSIONE', 'Errore di rete, riprova');
-  }
-
-  setTimeout(() => { scanLocked = false; hideResult(); }, 3000);
+    setTimeout(function() { scanLocked = false; nascondiRisultato(); }, 3000);
+  })
+  .catch(function() {
+    mostraRisultato('err', '⚠️', 'ERRORE DI RETE', 'Riprova');
+    setTimeout(function() { scanLocked = false; nascondiRisultato(); }, 3000);
+  });
 }
 
-function showResult(cls, icon, title, sub) {
-  const el = document.getElementById('scan-result');
+function mostraRisultato(cls, icon, title, sub) {
+  var el = document.getElementById('scan-result');
   el.className = 'scan-result ' + cls;
   document.getElementById('scan-icon').textContent = icon;
   document.getElementById('scan-title').textContent = title;
   document.getElementById('scan-sub').textContent = sub;
   el.style.display = 'block';
 }
-function hideResult() {
-  document.getElementById('scan-result').style.display = 'none';
-}
+function nascondiRisultato() { document.getElementById('scan-result').style.display = 'none'; }
 
-// ─────────────────────────────────────
-// DASHBOARD
-// ─────────────────────────────────────
-async function loadDashboard() {
+// ── DASHBOARD ─────────────────────────────────
+function loadDashboard() {
   if (APPS_SCRIPT_URL === 'APPS_SCRIPT_URL') {
     document.getElementById('ft-table-wrap').innerHTML = '<div class="empty">⚠️ Configura prima APPS_SCRIPT_URL</div>';
     return;
   }
-
-  document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><div class="stat-val"><span class="spinner"></span></div><div class="stat-lbl">Caricamento</div></div>
-    <div class="stat-card"></div><div class="stat-card"></div><div class="stat-card"></div>`;
+  document.getElementById('stats-grid').innerHTML =
+    '<div class="stat-card"><div class="stat-val"><span class="spinner"></span></div><div class="stat-lbl">Caricamento</div></div>' +
+    '<div class="stat-card"></div><div class="stat-card"></div><div class="stat-card"></div>';
   document.getElementById('ft-table-wrap').innerHTML = '<div class="empty">Caricamento…</div>';
 
-  try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=dashboard`);
-    const d = await res.json();
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'dashboard' })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
     if (!d.success) throw new Error(d.error);
+    document.getElementById('stats-grid').innerHTML =
+      '<div class="stat-card"><div class="stat-val">' + d.venduti + '</div><div class="stat-lbl">Venduti</div></div>' +
+      '<div class="stat-card"><div class="stat-val">' + d.usati + '</div><div class="stat-lbl">Usati</div></div>' +
+      '<div class="stat-card"><div class="stat-val">' + d.rimanenti + '</div><div class="stat-lbl">Rimanenti</div></div>' +
+      '<div class="stat-card"><div class="stat-val">€' + d.totale_venduto + '</div><div class="stat-lbl">Incasso</div></div>';
 
-    document.getElementById('stats-grid').innerHTML = `
-      <div class="stat-card"><div class="stat-val">${d.venduti}</div><div class="stat-lbl">Venduti</div></div>
-      <div class="stat-card"><div class="stat-val">${d.usati}</div><div class="stat-lbl">Usati</div></div>
-      <div class="stat-card"><div class="stat-val">${d.rimanenti}</div><div class="stat-lbl">Rimanenti</div></div>
-      <div class="stat-card"><div class="stat-val">€${d.totale_venduto}</div><div class="stat-lbl">Incasso</div></div>`;
-
-    const ftKeys = Object.keys(d.per_food_truck || {});
+    var ftKeys = Object.keys(d.per_food_truck || {});
     if (ftKeys.length === 0) {
       document.getElementById('ft-table-wrap').innerHTML = '<div class="empty">Nessun token ancora usato</div>';
       return;
     }
-
-    let totRimborso = 0;
-    let rows = '';
-    ftKeys.sort().forEach(ft => {
-      const x = d.per_food_truck[ft];
+    var totRimborso = 0;
+    var rows = '';
+    ftKeys.sort().forEach(function(ft) {
+      var x = d.per_food_truck[ft];
       totRimborso += x.totale;
-      rows += `<tr>
-        <td>${ft}</td>
-        <td style="text-align:center">${x.count}</td>
-        <td class="td-amt" style="text-align:right">€${x.totale.toFixed(2)}</td>
-      </tr>`;
+      rows += '<tr><td>' + ft + '</td><td style="text-align:center">' + x.count + '</td><td class="td-amt" style="text-align:right">€' + x.totale.toFixed(2) + '</td></tr>';
     });
-
-    document.getElementById('ft-table-wrap').innerHTML = `
-      <table>
-        <thead><tr><th>Punto Vendita</th><th style="text-align:center">Token</th><th style="text-align:right">Da Rimborsare</th></tr></thead>
-        <tbody>${rows}</tbody>
-        <tfoot><tr>
-          <td>Totale</td>
-          <td style="text-align:center">${d.usati}</td>
-          <td class="td-amt" style="text-align:right">€${totRimborso.toFixed(2)}</td>
-        </tr></tfoot>
-      </table>`;
-  } catch(e) {
-    document.getElementById('stats-grid').innerHTML = `<div class="stat-card" style="grid-column:span 2"><div class="empty">Errore: ${e.message}</div></div><div></div><div></div>`;
+    document.getElementById('ft-table-wrap').innerHTML =
+      '<table><thead><tr><th>Punto Vendita</th><th style="text-align:center">Token</th><th style="text-align:right">Da Rimborsare</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+      '<tfoot><tr><td>Totale</td><td style="text-align:center">' + d.usati + '</td><td class="td-amt" style="text-align:right">€' + totRimborso.toFixed(2) + '</td></tr></tfoot></table>';
+  })
+  .catch(function(e) {
+    document.getElementById('stats-grid').innerHTML = '<div class="stat-card" style="grid-column:span 2"><div class="empty">Errore: ' + e.message + '</div></div><div></div><div></div>';
     document.getElementById('ft-table-wrap').innerHTML = '<div class="empty">Impossibile caricare</div>';
-  }
+  });
 }
 </script>
 </body>
