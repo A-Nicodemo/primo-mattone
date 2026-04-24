@@ -187,7 +187,7 @@ tfoot td { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-s
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjqaRG2T5PMWRrKScli6z-IG8mDZsSiE-zcFOGo8NOisiVPguWmUssTawarSUXKteNow/exec';
+var APPS_SCRIPT_URL = 'APPS_SCRIPT_URL';
 
 var qty = 1;
 var selectedValue = 2;
@@ -236,11 +236,8 @@ function emettiToken() {
   var btn = document.getElementById('emetti-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Generazione…';
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'crea_token', quantita: qty, valore: selectedValue, metodo: selectedMethod })
-  })
+  var url = APPS_SCRIPT_URL + '?action=crea_token&quantita=' + qty + '&valore=' + selectedValue + '&metodo=' + encodeURIComponent(selectedMethod);
+  fetch(url, { redirect: 'follow' })
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (!data.success) throw new Error(data.error || 'Errore');
@@ -317,12 +314,9 @@ function onScanOK(decoded) {
   scanLocked = true;
   var ft = document.getElementById('ft-select').value;
   if (!ft) { mostraRis('err','⚠️','SELEZIONA IL PUNTO','prima di scansionare'); setTimeout(function(){ scanLocked=false; nascondiRis(); }, 2500); return; }
-  if (APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbwjqaRG2T5PMWRrKScli6z-IG8mDZsSiE-zcFOGo8NOisiVPguWmUssTawarSUXKteNow/exec') { mostraRis('err','⚠️','URL NON CONFIGURATO',''); setTimeout(function(){ scanLocked=false; nascondiRis(); }, 2500); return; }
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'usa_token', id: decoded, food_truck: ft })
-  })
+  if (APPS_SCRIPT_URL === 'APPS_SCRIPT_URL') { mostraRis('err','⚠️','URL NON CONFIGURATO',''); setTimeout(function(){ scanLocked=false; nascondiRis(); }, 2500); return; }
+  var scanUrl = APPS_SCRIPT_URL + '?action=usa_token&id=' + encodeURIComponent(decoded) + '&food_truck=' + encodeURIComponent(ft);
+  fetch(scanUrl, { redirect: 'follow' })
   .then(function(r) { return r.json(); })
   .then(function(d) {
     if (d.success)                      mostraRis('ok',  '✅', 'TOKEN VALIDO',  '€' + d.valore + ' · ' + ft);
@@ -350,11 +344,7 @@ function loadDashboard() {
     '<div class="stat-card"><div class="stat-val"><span class="spinner"></span></div><div class="stat-lbl">Caricamento</div></div>' +
     '<div class="stat-card"></div><div class="stat-card"></div><div class="stat-card"></div>';
   document.getElementById('ft-table-wrap').innerHTML = '<div class="empty">Caricamento…</div>';
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'dashboard' })
-  })
+  fetch(APPS_SCRIPT_URL + '?action=dashboard', { redirect: 'follow' })
   .then(function(r) { return r.json(); })
   .then(function(d) {
     if (!d.success) throw new Error(d.error);
