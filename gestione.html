@@ -105,6 +105,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 <div class="app" id="root"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script>
@@ -113,7 +114,7 @@ const {useState,useEffect,useCallback}=React;
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwQndyw9DFCwBVU3vPkfMNMEC4X7-0R4DUUOlBpThvwq5RFn5Nchu-YWpEMLEECpVNl/exec';
 
 const TOKENS=[
-  {id:'ingresso',name:'Ingresso',price:7,cat:'Ingresso'},
+  {id:'ingresso',name:'Ingresso',price:10,cat:'Ingresso'},
   {id:'tok_ginuino',name:'Token Ginuino (drink)',price:7,cat:'Drink'},
   {id:'tok_acqua',name:'Token Acqua',price:1,cat:'Drink'},
   {id:'tok_coca',name:'Token Coca Cola',price:3,cat:'Drink'},
@@ -196,7 +197,7 @@ function App(){
           syncing?React.createElement('span',{className:'spin'}):'↻ Sync')
       ),
       React.createElement('div',{className:'nav'},
-        [['ospiti','👥 Ospiti'],['acquisto','🛒 Acquisto'],['fatturazione','📄 Fatturazione']].map(([k,l])=>
+        [['ospiti','👥 Ospiti'],['acquisto','🛒 Acquisto'],['fatturazione','📄 Fatturazione'],['importa','📥 Importa']].map(([k,l])=>
           React.createElement('button',{key:k,className:'nb'+(v===k?' on':''),onClick:()=>setV(k)},l)
         )
       )
@@ -211,7 +212,8 @@ function App(){
       ),
       v==='ospiti'&&React.createElement(OspitiView,{guests,gSummary,totRev,posTot,cashTot,onAdd:addGuest}),
       v==='acquisto'&&React.createElement(AcquistoView,{guests,onAdd:addPurchase,onDone:()=>setV('ospiti')}),
-      v==='fatturazione'&&React.createElement(FatturazioneView,{guests,gSummary,totRev,posTot,cashTot})
+      v==='fatturazione'&&React.createElement(FatturazioneView,{guests,gSummary,totRev,posTot,cashTot}),
+      v==='importa'&&React.createElement(ImportaView,{onAdd:addGuest,guests})
     )
   );
 }
@@ -225,7 +227,7 @@ function OspitiView({guests,gSummary,totRev,posTot,cashTot,onAdd}){
   const filt=guests.filter(g=>(g.nome+' '+g.cognome+' '+(g.cf_piva||'')).toLowerCase().includes(srch.toLowerCase()));
 
   const submit=()=>{
-    if(!form.nome||!form.cognome||!form.cf_piva||!form.email){setErr('Compila i campi obbligatori (*)');return;}
+    if(!form.nome||!form.cognome||!form.email){setErr('Compila nome, cognome ed email (*)');return;}
     onAdd(form);setShow(false);setForm({nome:'',cognome:'',cf_piva:'',email:'',indirizzo:'',cap:'',citta:''});setErr('');
   };
 
@@ -430,6 +432,148 @@ function FatturazioneView({guests,gSummary,totRev,posTot,cashTot}){
       })
   );
 }
+
+
+function ImportaView({onAdd,guests}){
+  const[loading,setLoading]=React.useState(false);
+  const[preview,setPreview]=React.useState([]);
+  const[alert,setAlert]=React.useState(null);
+  const[imported,setImported]=React.useState(0);
+
+  const showAlert=(msg,t='ok')=>{setAlert({msg,t});setTimeout(()=>setAlert(null),5000);};
+
+  function parsePdfText(text){
+    const lines=text.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+    const guests=[];
+    const emailRx=/[\w.+-]+@[\w-]+\.[\w.]+/;
+    const telRx=/^[0-9]{9,12}$/;
+    const dateRx=/^\d{2}\/\d{2}\/\d{4}/;
+    const stateWords=['Confermata','In attesa','In Attesa','Annullata'];
+    const skip=['Cognome / Nome','Mail','Telefono','Pacchetto','Data Prenotazione','Stato',
+      'Prenotazioni Evento','Riepilogo ospiti','Totale','Confermati','Annullati',
+      'Prenotazioni totali:','Pag.','Generato il','Ingresso + Consumazione','O','sp','iti'];
+
+    let i=0;
+    while(i<lines.length){
+      const l=lines[i];
+      // salta righe non utili
+      if(skip.some(s=>l.startsWith(s))||/^\d+$/.test(l)||dateRx.test(l)||stateWords.includes(l)){i++;continue;}
+      // se ha email nella stessa riga o nella prossima → è un ospite
+      const emailMatch=l.match(emailRx);
+      let nomeLine=l, emailLine='', telLine='';
+      if(emailMatch){
+        // email inline con nome
+        nomeLine=l.replace(emailRx,'').trim();
+        emailLine=emailMatch[0];
+        i++;
+      } else {
+        // cerca email nelle righe successive
+        let found=false;
+        for(let j=i+1;j<Math.min(i+5,lines.length);j++){
+          if(lines[j].match(emailRx)){
+            emailLine=lines[j].match(emailRx)[0];
+            // cerca telefono
+            for(let k=j+1;k<Math.min(j+3,lines.length);k++){
+              if(telRx.test(lines[k].replace(/\s/g,''))){telLine=lines[k];break;}
+            }
+            found=true;
+            i=j+1;
+            break;
+          }
+        }
+        if(!found){i++;continue;}
+      }
+      if(!nomeLine||!emailLine)continue;
+      // split cognome nome (formato: "Cognome Nome" o "Cognome Nome1 Nome2")
+      const parts=nomeLine.split(/\s+/);
+      let cognome=parts[0]||'';
+      let nome=parts.slice(1).join(' ')||cognome;
+      if(parts.length===1){nome=parts[0];cognome='';}
+      // evita duplicati
+      const already=guests.find(g=>g.email===emailLine);
+      if(!already) guests.push({nome,cognome,email:emailLine,telefono:telLine,cf_piva:'',indirizzo:'',cap:'',citta:'',source:'pdf'});
+    }
+    return guests;
+  }
+
+  async function handleFile(e){
+    const file=e.target.files[0];
+    if(!file)return;
+    setLoading(true);setPreview([]);
+    try{
+      const pdfjsLib=window['pdfjs-dist/build/pdf'];
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const ab=await file.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data:ab}).promise;
+      let fullText='';
+      for(let p=1;p<=pdf.numPages;p++){
+        const page=await pdf.getPage(p);
+        const tc=await page.getTextContent();
+        fullText+=tc.items.map(i=>i.str).join('\n')+'\n';
+      }
+      const parsed=parsePdfText(fullText);
+      setPreview(parsed);
+      if(parsed.length===0) showAlert('Nessun ospite trovato nel PDF — verifica il formato','er');
+      else showAlert(parsed.length+' ospiti trovati — controlla e importa','ok');
+    }catch(err){showAlert('Errore lettura PDF: '+err.message,'er');}
+    finally{setLoading(false);}
+  }
+
+  async function importAll(){
+    if(preview.length===0)return;
+    setLoading(true);
+    let count=0;
+    for(const g of preview){
+      const exists=guests.find(x=>x.email===g.email);
+      if(!exists){await onAdd(g);count++;}
+    }
+    setImported(count);
+    setPreview([]);
+    showAlert(count+' ospiti importati nel foglio Google ✓');
+    setLoading(false);
+  }
+
+  const ini=g=>((g.nome||'?')[0]+(g.cognome||'?')[0]).toUpperCase();
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{className:'card-h'},'Importa prenotazioni da PDF'),
+      React.createElement('div',{style:{fontSize:'13px',color:'#666',marginBottom:'14px',lineHeight:'1.7'}},
+        'Carica il PDF delle prenotazioni esportato dal tuo gestionale. ',
+        'Gli ospiti vengono creati automaticamente con CF vuoto — potrai completarlo dopo all'ingresso.'
+      ),
+      alert&&React.createElement('div',{className:'al '+(alert.t||'ok')},alert.msg),
+      React.createElement('label',{style:{display:'block',border:'2px dashed #7A9080',borderRadius:'10px',padding:'24px',textAlign:'center',cursor:'pointer',background:'#f0f4f2'}},
+        React.createElement('div',{style:{fontSize:'28px',marginBottom:'8px'}},'📄'),
+        React.createElement('div',{style:{fontSize:'14px',fontWeight:'600',color:'#7A9080',marginBottom:'4px'}},
+          loading?'Lettura in corso...':'Clicca per caricare il PDF prenotazioni'),
+        React.createElement('div',{style:{fontSize:'12px',color:'#aaa'}},'Formato: PDF esportato dal gestionale prenotazioni'),
+        React.createElement('input',{type:'file',accept:'.pdf',style:{display:'none'},onChange:handleFile,disabled:loading})
+      )
+    ),
+    preview.length>0&&React.createElement('div',{className:'card'},
+      React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'12px'}},
+        React.createElement('div',{className:'card-h',style:{margin:0}},preview.length+' ospiti trovati'),
+        React.createElement('button',{className:'btn sec',onClick:importAll,disabled:loading},
+          loading?'Importazione...':'✓ Importa tutti nel foglio')
+      ),
+      React.createElement('div',{className:'glist'},
+        preview.map((g,i)=>React.createElement('div',{key:i,className:'gitem'},
+          React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'12px'}},
+            React.createElement('div',{className:'av'},ini(g)),
+            React.createElement('div',null,
+              React.createElement('div',{className:'gn'},g.nome+' '+g.cognome,
+                React.createElement('span',{className:'bdg',style:{background:'#fff3cd',color:'#856404'}},'PDF')),
+              React.createElement('div',{className:'gs'},g.email+(g.telefono?' · '+g.telefono:''))
+            )
+          ),
+          React.createElement('span',{style:{fontSize:'12px',color:'#aaa'}},'CF da completare')
+        ))
+      )
+    )
+  );
+}
+
 
 ReactDOM.render(React.createElement(App),document.getElementById('root'));
 </script>
