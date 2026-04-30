@@ -144,6 +144,19 @@ function App(){
     .then(function(){ showAlert('Ospite aggiunto'); });
   }
 
+  function addGuestsBatch(list){
+    // Add all guests sequentially, sync only at the end
+    var chain=Promise.resolve();
+    list.forEach(function(g){
+      chain=chain.then(function(){
+        return api({action:'addGuest',nome:g.nome,cognome:g.cognome,cf_piva:g.cf_piva||'',
+          email:g.email,indirizzo:g.indirizzo||'',cap:g.cap||'',citta:g.citta||'',
+          source:g.source||'pdf'});
+      });
+    });
+    return chain.then(function(){ return doSync(); });
+  }
+
   function addPurchase(p){
     return api({action:'addPurchase',guestId:p.guestId,guestName:p.guestName,
       items:encodeURIComponent(JSON.stringify(p.items)),pay:p.pay})
@@ -191,7 +204,7 @@ function App(){
       v==='ospiti' ? h(ViewOspiti,{guests:guests,gSum:gSum,totRev:totRev,posTot:posTot,cashTot:cashTot,onAdd:addGuest}) : null,
       v==='acquisto' ? h(ViewAcquisto,{guests:guests,onAdd:addPurchase,onDone:function(){ setV('ospiti'); }}) : null,
       v==='fatturazione' ? h(ViewFatture,{guests:guests,gSum:gSum,totRev:totRev,posTot:posTot,cashTot:cashTot}) : null,
-      v==='importa' ? h(ViewImporta,{onAdd:addGuest,guests:guests}) : null));
+      v==='importa' ? h(ViewImporta,{onAdd:addGuest,onAddBatch:addGuestsBatch,guests:guests}) : null));
 }
 
 function ViewOspiti(props){
@@ -408,7 +421,7 @@ function ViewFatture(props){
 }
 
 function ViewImporta(props){
-  var onAdd=props.onAdd,guests=props.guests;
+  var onAdd=props.onAdd,onAddBatch=props.onAddBatch,guests=props.guests;
   var sl=useState(false); var loading=sl[0]; var setLoading=sl[1];
   var sp=useState([]); var preview=sp[0]; var setPreview=sp[1];
   var sa=useState(null); var alert=sa[0]; var setAlert=sa[1];
@@ -503,18 +516,21 @@ function ViewImporta(props){
   function importAll(){
     if(preview.length===0) return;
     setLoading(true);
-    var count=0;
-    var chain=Promise.resolve();
-    preview.forEach(function(g){
-      var dup=guests.find(function(x){ return x.email&&x.email.toLowerCase()===g.email.toLowerCase(); });
-      if(!dup){
-        chain=chain.then(function(){ return onAdd(g).then(function(){ count++; }); });
-      }
+    var toImport=preview.filter(function(g){
+      return !guests.find(function(x){ return x.email&&x.email.toLowerCase()===g.email.toLowerCase(); });
     });
-    chain.then(function(){
-      var dups=preview.length-count;
+    var dups=preview.length-toImport.length;
+    if(toImport.length===0){
+      showAlert('Tutti gli ospiti sono già presenti','er');
+      setLoading(false);
+      return;
+    }
+    onAddBatch(toImport).then(function(){
       setPreview([]);
-      showAlert(count+' ospiti importati'+(dups>0?' ('+dups+' già presenti)':''));
+      showAlert(toImport.length+' ospiti importati'+(dups>0?' ('+dups+' già presenti)':''));
+      setLoading(false);
+    }).catch(function(e){
+      showAlert('Errore importazione: '+e.message,'er');
       setLoading(false);
     });
   }
@@ -549,6 +565,7 @@ function ViewImporta(props){
 }
 
 ReactDOM.render(h(App),document.getElementById('root'));
+
 
 </script>
 </body>
