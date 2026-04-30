@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Capocanale Staff">
+<meta name="theme-color" content="#7A9080">
+<title>Capocanale – Staff</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--verde:#7A9080;--verde-dark:#5E7265;--azzurro:#E8EFF2;--bordeaux:#8C1515;--bordeaux-dark:#6B0F0F;--bg:#fff;--bg2:#f5f5f3;--border:#e0e0e0;--text:#111;--muted:#666;--light:#aaa}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--azzurro);min-height:100vh}
+.app{max-width:600px;margin:0 auto;padding:0 0 4rem}
+/* TOPBAR */
+.topbar{background:var(--verde);padding:14px 16px 0;border-radius:0 0 14px 14px;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.brand{display:flex;align-items:baseline;gap:5px}
+.brand-the{font-size:13px;font-style:italic;color:rgba(255,255,255,.7)}
+.brand-name{font-size:18px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.03em}
+.brand-ev{font-size:10px;background:var(--bordeaux);color:#fff;padding:2px 9px;border-radius:999px;font-weight:600;letter-spacing:.05em;margin-left:4px}
+.sync-btn{padding:5px 12px;font-size:12px;font-weight:500;background:rgba(255,255,255,.15);color:#fff;border:0.5px solid rgba(255,255,255,.3);border-radius:6px;cursor:pointer}
+.sync-btn:hover{background:rgba(255,255,255,.25)}
+.nav{display:flex;border-top:0.5px solid rgba(255,255,255,.2)}
+.nb{flex:1;padding:10px 4px;font-size:12px;font-weight:500;background:transparent;border:none;color:rgba(255,255,255,.6);cursor:pointer;text-align:center;border-top:2px solid transparent}
+.nb.on{color:#fff;border-top-color:#fff;background:rgba(255,255,255,.1)}
+/* CARDS */
+.pad{padding:0 12px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:1rem}
+.kpi{background:var(--bg);border-radius:10px;padding:14px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.kpi-v{font-size:22px;font-weight:700;color:var(--text)}
+.kpi-l{font-size:11px;color:var(--muted);margin-top:3px}
+.card{background:var(--bg);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.875rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card-h{font-size:14px;font-weight:600;color:var(--text);margin-bottom:.875rem;display:flex;align-items:center;gap:8px}
+.card-h::before{content:'';width:3px;height:16px;background:var(--verde);border-radius:2px;display:block}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.r3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.fld label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;font-weight:500}
+.fld input{width:100%;padding:10px 12px;font-size:15px;border:1.5px solid var(--border);border-radius:8px;background:#fafafa;color:var(--text)}
+.fld input:focus{outline:none;border-color:var(--verde);background:#fff}
+.btn{padding:10px 18px;font-size:14px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all .15s}
+.btn.pri{background:var(--bordeaux);color:#fff}
+.btn.pri:hover{background:var(--bordeaux-dark)}
+.btn.sec{background:var(--verde);color:#fff}
+.btn.sec:hover{background:var(--verde-dark)}
+.btn.ghost{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn.ghost:hover{background:var(--bg2)}
+.btn.sm{padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.srch{width:100%;padding:10px 14px;font-size:15px;border:1.5px solid var(--border);border-radius:8px;background:#fafafa;color:var(--text);margin-bottom:10px}
+.srch:focus{outline:none;border-color:var(--verde);background:#fff}
+/* ALERTS */
+.al{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:10px}
+.al.ok{background:#edf7f1;color:#1a6b3a;border:1px solid #b5e0c8}
+.al.er{background:#fff0f0;color:var(--bordeaux);border:1px solid #ffcccc}
+/* GUEST LIST */
+.glist{display:flex;flex-direction:column;gap:7px}
+.gitem{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;background:var(--bg)}
+.gitem:hover,.gitem.sel{background:var(--azzurro);border-color:var(--verde)}
+.av{width:38px;height:38px;border-radius:50%;background:var(--azzurro);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--verde);flex-shrink:0;border:1.5px solid var(--verde)}
+.gn{font-size:14px;font-weight:600;color:var(--text)}
+.gs{font-size:12px;color:var(--muted);margin-top:2px}
+.bdg{display:inline-block;font-size:10px;padding:2px 7px;border-radius:999px;margin-left:5px;font-weight:600}
+.bdg.q{background:#edf7f1;color:#1a6b3a}
+.bdg.s{background:var(--azzurro);color:var(--verde)}
+/* TOKEN GRID */
+.tok-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:.75rem 0}
+.tok-cat{font-size:10px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:.08em;grid-column:1/-1;padding:8px 0 4px;border-bottom:1.5px solid var(--azzurro)}
+.tok-btn{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg)}
+.tok-btn.act{border-color:var(--verde);background:var(--azzurro)}
+.tn{font-size:13px;color:var(--text);font-weight:500;line-height:1.3}
+.tp{font-size:12px;color:var(--muted);margin-top:2px}
+.qc{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.qb{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text)}
+.qb:hover{background:var(--azzurro);border-color:var(--verde)}
+.qn{font-size:14px;font-weight:700;min-width:16px;text-align:center;color:var(--bordeaux)}
+/* PAYMENT */
+.pay-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:.75rem 0}
+.po{padding:14px;text-align:center;border:2px solid var(--border);border-radius:10px;cursor:pointer;font-size:14px;color:var(--muted);font-weight:500}
+.po.on{border-color:var(--verde);background:var(--azzurro);color:var(--verde)}
+.pi{font-size:22px;display:block;margin-bottom:5px}
+.tot-row{display:flex;justify-content:space-between;font-size:16px;font-weight:700;padding:12px 0 0;border-top:1.5px solid var(--border);color:var(--text)}
+.cline{display:flex;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:14px;color:var(--text)}
+.cline:last-child{border-bottom:none}
+.div{height:0.5px;background:var(--border);margin:.875rem 0}
+/* FATTURAZIONE */
+.fat-card{border:1.5px solid var(--border);border-radius:12px;margin-bottom:.875rem;overflow:hidden;background:var(--bg);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.fat-head{padding:14px;background:var(--azzurro);display:flex;justify-content:space-between;align-items:flex-start}
+.fat-name{font-size:15px;font-weight:700;color:var(--text)}
+.fat-fiscal{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.6}
+.fat-tot{font-size:18px;font-weight:700;color:var(--bordeaux);text-align:right}
+.fat-split{font-size:12px;color:var(--muted);text-align:right;margin-top:3px}
+.fat-body{padding:12px 14px}
+.fat-line{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:3px 0}
+.fat-line span:last-child{color:var(--text);font-weight:500}
+/* MISC */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:14px;line-height:1.8}
+.sel-note{font-size:13px;color:var(--muted);margin-bottom:10px;padding:10px 12px;background:var(--azzurro);border-radius:8px;border-left:3px solid var(--verde)}
+.sync-info{font-size:11px;color:var(--muted);text-align:right;margin-bottom:8px}
+.spin{display:inline-block;width:11px;height:11px;border:1.5px solid #ccc;border-top-color:var(--verde);border-radius:50%;animation:sp .7s linear infinite;margin-right:4px;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="app" id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script>
+const {useState,useEffect,useCallback}=React;
+
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwQndyw9DFCwBVU3vPkfMNMEC4X7-0R4DUUOlBpThvwq5RFn5Nchu-YWpEMLEECpVNl/exec';
+
+const TOKENS=[
+  {id:'ingresso',name:'Ingresso',price:10,cat:'Ingresso'},
+  {id:'tok_ginuino',name:'Token Ginuino (drink)',price:7,cat:'Drink'},
+  {id:'tok_acqua',name:'Token Acqua',price:1,cat:'Drink'},
+  {id:'tok_coca',name:'Token Coca Cola',price:3,cat:'Drink'},
+  {id:'tok_birra',name:'Token Birra',price:4,cat:'Drink'},
+  {id:'tok_pizza',name:'Token Pizza',price:4,cat:'Food'},
+  {id:'tok_bruschetta',name:'Token Bruschetta Cacios',price:5,cat:'Food'},
+  {id:'tok_panino',name:'Token Panino Cacios',price:10,cat:'Food'},
+];
+
+const f=n=>'€'+Number(n).toFixed(2);
+const ini=g=>((g.nome||'?')[0]+(g.cognome||'?')[0]).toUpperCase();
+
+async function api(params){
+  const r=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params).toString());
+  return r.json();
+}
+
+function App(){
+  const[v,setV]=useState('ospiti');
+  const[guests,setGuests]=useState([]);
+  const[purchases,setPurchases]=useState([]);
+  const[syncing,setSyncing]=useState(false);
+  const[lastSync,setLastSync]=useState(null);
+  const[alert,setAlert]=useState(null);
+
+  useEffect(()=>{sync();},[]);
+
+  const showAlert=(msg,t='ok')=>{setAlert({msg,t});setTimeout(()=>setAlert(null),4000);};
+
+  const sync=async()=>{
+    setSyncing(true);
+    try{
+      const d=await api({action:'getAll'});
+      if(d.ok){setGuests(d.guests||[]);setPurchases(d.purchases||[]);setLastSync(new Date());}
+      else showAlert('Errore connessione al foglio','er');
+    }catch{showAlert('Errore — controlla connessione internet','er');}
+    finally{setSyncing(false);}
+  };
+
+  const addGuest=async g=>{
+    try{await api({action:'addGuest',...g,source:'staff'});await sync();showAlert('Ospite aggiunto');}
+    catch{showAlert('Errore aggiunta ospite','er');}
+  };
+
+  const addPurchase=async p=>{
+    try{
+      await api({action:'addPurchase',guestId:p.guestId,guestName:p.guestName,
+        items:encodeURIComponent(JSON.stringify(p.items)),pay:p.pay});
+      await sync();showAlert('Acquisto registrato nel foglio ✓');
+    }catch{showAlert('Errore registrazione','er');}
+  };
+
+  const gSummary=id=>{
+    const rows=purchases.filter(p=>p.guestId===id);
+    let pos=0,cont=0;const items={};
+    rows.forEach(r=>{
+      const t=Number(r.totale)||0;
+      if(r.pagamento==='POS / Carta')pos+=t;else cont+=t;
+      if(!items[r.prodotto])items[r.prodotto]={name:r.prodotto,qty:0,tot:0};
+      items[r.prodotto].qty+=Number(r.qty)||0;
+      items[r.prodotto].tot+=t;
+    });
+    return{pos,contanti:cont,total:pos+cont,items:Object.values(items)};
+  };
+
+  const totRev=purchases.reduce((s,p)=>s+(Number(p.totale)||0),0);
+  const posTot=purchases.filter(p=>p.pagamento==='POS / Carta').reduce((s,p)=>s+(Number(p.totale)||0),0);
+  const cashTot=purchases.filter(p=>p.pagamento==='Contanti').reduce((s,p)=>s+(Number(p.totale)||0),0);
+
+  return React.createElement('div',null,
+    // TOPBAR
+    React.createElement('div',{className:'topbar'},
+      React.createElement('div',{className:'topbar-inner'},
+        React.createElement('div',{className:'brand'},
+          React.createElement('span',{className:'brand-the'},'The'),
+          React.createElement('span',{className:'brand-name'},'Capocanale'),
+          React.createElement('span',{className:'brand-ev'},'Staff')
+        ),
+        React.createElement('button',{className:'sync-btn',onClick:sync,disabled:syncing},
+          syncing?React.createElement('span',{className:'spin'}):'↻ Sync')
+      ),
+      React.createElement('div',{className:'nav'},
+        [['ospiti','👥 Ospiti'],['acquisto','🛒 Acquisto'],['fatturazione','📄 Fatturazione']].map(([k,l])=>
+          React.createElement('button',{key:k,className:'nb'+(v===k?' on':''),onClick:()=>setV(k)},l)
+        )
+      )
+    ),
+    // CONTENT
+    React.createElement('div',{className:'pad'},
+      alert&&React.createElement('div',{className:`al ${alert.t}`},alert.msg),
+      lastSync&&React.createElement('div',{className:'sync-info'},
+        (syncing?React.createElement('span',{className:'spin'}):null),
+        'Aggiornato: '+lastSync.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})+
+        ' · '+guests.length+' ospiti · '+f(totRev)+' incasso'
+      ),
+      v==='ospiti'&&React.createElement(OspitiView,{guests,gSummary,totRev,posTot,cashTot,onAdd:addGuest}),
+      v==='acquisto'&&React.createElement(AcquistoView,{guests,onAdd:addPurchase,onDone:()=>setV('ospiti')}),
+      v==='fatturazione'&&React.createElement(FatturazioneView,{guests,gSummary,totRev,posTot,cashTot})
+    )
+  );
+}
+
+function OspitiView({guests,gSummary,totRev,posTot,cashTot,onAdd}){
+  const[srch,setSrch]=useState('');
+  const[show,setShow]=useState(false);
+  const[form,setForm]=useState({nome:'',cognome:'',cf_piva:'',email:'',indirizzo:'',cap:'',citta:''});
+  const[err,setErr]=useState('');
+  const set=(k,val)=>setForm(f=>({...f,[k]:val}));
+  const filt=guests.filter(g=>(g.nome+' '+g.cognome+' '+(g.cf_piva||'')).toLowerCase().includes(srch.toLowerCase()));
+
+  const submit=()=>{
+    if(!form.nome||!form.cognome||!form.cf_piva||!form.email){setErr('Compila i campi obbligatori (*)');return;}
+    onAdd(form);setShow(false);setForm({nome:'',cognome:'',cf_piva:'',email:'',indirizzo:'',cap:'',citta:''});setErr('');
+  };
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'kpis'},
+      [{v:guests.length,l:'Ospiti registrati'},{v:f(totRev),l:'Incasso totale'},
+       {v:f(posTot),l:'POS / Carta'},{v:f(cashTot),l:'Contanti'}]
+        .map((m,i)=>React.createElement('div',{key:i,className:'kpi'},
+          React.createElement('div',{className:'kpi-v'},m.v),
+          React.createElement('div',{className:'kpi-l'},m.l)))
+    ),
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'12px'}},
+        React.createElement('div',{className:'card-h',style:{margin:0}},'Lista ospiti'),
+        React.createElement('button',{className:'btn ghost sm',onClick:()=>setShow(s=>!s)},show?'Annulla':'+ Aggiungi manuale')
+      ),
+      show&&React.createElement('div',{style:{background:'#E8EFF2',borderRadius:'10px',padding:'14px',marginBottom:'12px'}},
+        err&&React.createElement('div',{className:'al er',style:{marginBottom:'8px'}},err),
+        React.createElement('div',{className:'r2'},
+          React.createElement('div',{className:'fld'},React.createElement('label',null,'Nome *'),React.createElement('input',{value:form.nome,onChange:e=>set('nome',e.target.value),placeholder:'Mario'})),
+          React.createElement('div',{className:'fld'},React.createElement('label',null,'Cognome *'),React.createElement('input',{value:form.cognome,onChange:e=>set('cognome',e.target.value),placeholder:'Rossi'}))
+        ),
+        React.createElement('div',{className:'r2'},
+          React.createElement('div',{className:'fld'},React.createElement('label',null,'CF / P.IVA *'),React.createElement('input',{value:form.cf_piva,onChange:e=>set('cf_piva',e.target.value.toUpperCase())})),
+          React.createElement('div',{className:'fld'},React.createElement('label',null,'Email *'),React.createElement('input',{type:'email',value:form.email,onChange:e=>set('email',e.target.value)}))
+        ),
+        React.createElement('div',{className:'r3'},
+          React.createElement('div',{className:'fld'},React.createElement('label',null,'Indirizzo'),React.createElement('input',{value:form.indirizzo,onChange:e=>set('indirizzo',e.target.value)})),
+          React.createElement('div',{className:'fld'},React.createElement('label',null,'CAP'),React.createElement('input',{value:form.cap,onChange:e=>set('cap',e.target.value)})),
+          React.createElement('div',{className:'fld'},React.createElement('label',null,'Città'),React.createElement('input',{value:form.citta,onChange:e=>set('citta',e.target.value)}))
+        ),
+        React.createElement('div',{style:{display:'flex',justifyContent:'flex-end',marginTop:'8px'}},
+          React.createElement('button',{className:'btn sec sm',onClick:submit},'Salva nel foglio'))
+      ),
+      React.createElement('input',{className:'srch',placeholder:'Cerca per nome o CF/P.IVA...',value:srch,onChange:e=>setSrch(e.target.value)}),
+      guests.length===0
+        ?React.createElement('div',{className:'empty'},'Nessun ospite ancora.\nPremi ↻ Sync per aggiornare\no aggiungi manualmente.')
+        :React.createElement('div',{className:'glist'},
+          filt.map(g=>{
+            const s=gSummary(g.id);
+            return React.createElement('div',{key:g.id,className:'gitem'},
+              React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'12px'}},
+                React.createElement('div',{className:'av'},ini(g)),
+                React.createElement('div',null,
+                  React.createElement('div',{className:'gn'},g.nome+' '+g.cognome,
+                    React.createElement('span',{className:'bdg '+(g.source==='form'||g.source==='qr'?'q':'s')},
+                      g.source==='form'||g.source==='qr'?'QR':'staff')),
+                  React.createElement('div',{className:'gs'},g.cf_piva+(s.total>0?' · '+f(s.total):''))
+                )
+              )
+            );
+          })
+        )
+    )
+  );
+}
+
+function AcquistoView({guests,onAdd,onDone}){
+  const[step,setStep]=useState(1);
+  const[gId,setGId]=useState('');
+  const[cart,setCart]=useState({});
+  const[pay,setPay]=useState('');
+  const[srch,setSrch]=useState('');
+  const[sending,setSending]=useState(false);
+
+  const filt=guests.filter(g=>(g.nome+' '+g.cognome+' '+(g.cf_piva||'')).toLowerCase().includes(srch.toLowerCase()));
+  const items=TOKENS.filter(t=>(cart[t.id]||0)>0);
+  const total=items.reduce((s,t)=>s+t.price*(cart[t.id]||0),0);
+  const setQ=(id,d)=>setCart(c=>{const n=(c[id]||0)+d;return n<0?c:{...c,[id]:n};});
+  const cats=[...new Set(TOKENS.map(t=>t.cat))];
+  const sel=guests.find(g=>g.id===gId);
+
+  const confirm=async()=>{
+    if(!gId||!pay||items.length===0||sending)return;
+    setSending(true);
+    await onAdd({guestId:gId,guestName:sel.nome+' '+sel.cognome,
+      items:items.map(t=>({id:t.id,name:t.name,qty:cart[t.id],price:t.price})),total,pay});
+    setSending(false);setStep(1);setGId('');setCart({});setPay('');setSrch('');
+    onDone();
+  };
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{className:'card-h'},'1 — Seleziona ospite'),
+      React.createElement('input',{className:'srch',placeholder:'Cerca per nome o CF...',value:srch,onChange:e=>setSrch(e.target.value)}),
+      guests.length===0
+        ?React.createElement('div',{className:'empty',style:{padding:'1rem'}},'Nessun ospite. Premi ↻ Sync.')
+        :React.createElement('div',{className:'glist'},
+          filt.slice(0,5).map(g=>React.createElement('div',{key:g.id,
+            className:'gitem'+(gId===g.id?' sel':''),
+            onClick:()=>{setGId(g.id);setStep(Math.max(step,2));}},
+            React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'12px'}},
+              React.createElement('div',{className:'av'},ini(g)),
+              React.createElement('div',null,
+                React.createElement('div',{className:'gn'},g.nome+' '+g.cognome),
+                React.createElement('div',{className:'gs'},g.cf_piva)
+              )
+            ),
+            gId===g.id&&React.createElement('span',{style:{color:'#7A9080',fontSize:'20px',fontWeight:'700'}},'✓')
+          ))
+        )
+    ),
+    step>=2&&React.createElement('div',{className:'card'},
+      React.createElement('div',{className:'card-h'},'2 — Token acquistati'),
+      React.createElement('div',{className:'tok-grid'},
+        cats.flatMap(cat=>[
+          React.createElement('div',{key:'c'+cat,className:'tok-cat'},cat),
+          ...TOKENS.filter(t=>t.cat===cat).map(t=>{
+            const q=cart[t.id]||0;
+            return React.createElement('div',{key:t.id,className:'tok-btn'+(q>0?' act':'')},
+              React.createElement('div',null,
+                React.createElement('div',{className:'tn'},t.name),
+                React.createElement('div',{className:'tp'},f(t.price)+' cad.')),
+              React.createElement('div',{className:'qc'},
+                q>0&&React.createElement('button',{className:'qb',onClick:()=>setQ(t.id,-1)},'−'),
+                q>0&&React.createElement('span',{className:'qn'},q),
+                React.createElement('button',{className:'qb',onClick:()=>{setQ(t.id,1);setStep(Math.max(step,3));}},'+')));
+          })
+        ])
+      )
+    ),
+    step>=3&&items.length>0&&React.createElement('div',{className:'card'},
+      React.createElement('div',{className:'card-h'},'3 — Pagamento'),
+      sel&&React.createElement('div',{className:'sel-note'},
+        'Intestato a: ',React.createElement('strong',null,sel.nome+' '+sel.cognome),' · ',sel.cf_piva),
+      items.map(t=>React.createElement('div',{key:t.id,className:'cline'},
+        React.createElement('span',null,t.name+(cart[t.id]>1?' ×'+cart[t.id]:'')),
+        React.createElement('span',null,f(t.price*cart[t.id])))),
+      React.createElement('div',{className:'tot-row'},React.createElement('span',null,'Totale'),React.createElement('span',null,f(total))),
+      React.createElement('div',{className:'div'}),
+      React.createElement('div',{className:'pay-row'},
+        React.createElement('div',{className:'po'+(pay==='pos'?' on':''),onClick:()=>setPay('pos')},React.createElement('span',{className:'pi'},'💳'),'POS / Carta'),
+        React.createElement('div',{className:'po'+(pay==='contanti'?' on':''),onClick:()=>setPay('contanti')},React.createElement('span',{className:'pi'},'💵'),'Contanti')
+      ),
+      React.createElement('div',{style:{display:'flex',gap:'8px',justifyContent:'flex-end',marginTop:'10px'}},
+        React.createElement('button',{className:'btn ghost',onClick:()=>{setCart({});setStep(2);}},'Azzera'),
+        React.createElement('button',{className:'btn pri',disabled:!pay||sending,onClick:confirm,style:{flex:1}},
+          sending?'Salvataggio...':'✓ Registra acquisto')
+      )
+    )
+  );
+}
+
+function FatturazioneView({guests,gSummary,totRev,posTot,cashTot}){
+  const withP=guests.filter(g=>gSummary(g.id).total>0);
+
+  const copyAll=()=>{
+    const txt=withP.map(g=>{
+      const s=gSummary(g.id);
+      const addr=[g.indirizzo,g.cap,g.citta].filter(Boolean).join(' ');
+      return [
+        g.nome+' '+g.cognome,
+        'CF/PIVA: '+g.cf_piva,
+        addr?'Indirizzo: '+addr:'',
+        'Email: '+g.email,'',
+        ...s.items.map(i=>i.name+(i.qty>1?' x'+i.qty:'')+' — '+f(i.tot)),'',
+        s.pos>0?'POS / Carta: '+f(s.pos):'',
+        s.contanti>0?'Contanti: '+f(s.contanti):'',
+        'TOTALE: '+f(s.total)
+      ].filter(Boolean).join('\n');
+    }).join('\n\n'+'─'.repeat(35)+'\n\n');
+    navigator.clipboard.writeText(txt).catch(()=>{});
+    alert('✓ Dati copiati negli appunti — incollali nel gestionale');
+  };
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'kpis'},
+      [{v:f(totRev),l:'Totale da fatturare'},{v:f(posTot),l:'POS / Carta'},
+       {v:f(cashTot),l:'Contanti'},{v:withP.length,l:'Fatture da emettere'}]
+        .map((m,i)=>React.createElement('div',{key:i,className:'kpi'},
+          React.createElement('div',{className:'kpi-v'},m.v),
+          React.createElement('div',{className:'kpi-l'},m.l)))
+    ),
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'12px'}},
+      React.createElement('div',{style:{fontSize:'14px',fontWeight:'600',color:'#111'}},withP.length+' ospiti da fatturare'),
+      React.createElement('button',{className:'btn sec',onClick:copyAll},'📋 Copia per gestionale')
+    ),
+    withP.length===0
+      ?React.createElement('div',{className:'empty'},'Nessun acquisto registrato.\nPremi ↻ Sync per aggiornare.')
+      :withP.map(g=>{
+        const s=gSummary(g.id);
+        const addr=[g.indirizzo,g.cap,g.citta].filter(Boolean).join(' ');
+        return React.createElement('div',{key:g.id,className:'fat-card'},
+          React.createElement('div',{className:'fat-head'},
+            React.createElement('div',null,
+              React.createElement('div',{className:'fat-name'},g.nome+' '+g.cognome),
+              React.createElement('div',{className:'fat-fiscal'},
+                g.cf_piva,addr&&React.createElement('br',null),addr&&addr,React.createElement('br',null),g.email)
+            ),
+            React.createElement('div',null,
+              React.createElement('div',{className:'fat-tot'},f(s.total)),
+              React.createElement('div',{className:'fat-split'},
+                s.pos>0&&'POS '+f(s.pos),s.pos>0&&s.contanti>0&&' · ',s.contanti>0&&'Cont. '+f(s.contanti))
+            )
+          ),
+          React.createElement('div',{className:'fat-body'},
+            s.items.map(it=>React.createElement('div',{key:it.name,className:'fat-line'},
+              React.createElement('span',null,it.name+(it.qty>1?' ×'+it.qty:'')),
+              React.createElement('span',null,f(it.tot))))
+          )
+        );
+      })
+  );
+}
+
+ReactDOM.render(React.createElement(App),document.getElementById('root'));
+</script>
+</body>
+</html>
